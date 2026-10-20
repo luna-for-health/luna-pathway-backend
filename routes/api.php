@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Appointment\ConsultationDocumentController;
 use App\Http\Controllers\Api\Secretary\Auth\AuthController as SecretaryAuthController;
+use App\Http\Controllers\Api\User\Appointment\ConsultationRequestController;
 use App\Http\Controllers\Api\User\Auth\AuthController;
 use App\Http\Controllers\Api\User\Auth\OAuthController;
 use App\Http\Controllers\Api\User\GdprController;
@@ -29,6 +30,11 @@ Route::put('gdpr/accept', [GdprController::class, 'accept'])->middleware('auth:s
 Route::controller(OnboardingController::class)->prefix('onboarding')->group(function () {
     Route::get('/', 'content')->name('onboarding.content');
     Route::put('/', 'update')->middleware('auth:sanctum')->name('onboarding.update');
+});
+
+Route::controller(ConsultationRequestController::class)->middleware('auth:sanctum')->prefix('consultation-requests')->group(function () {
+    Route::get('/', 'index')->name('consultationRequests.index');
+    Route::post('/', 'store')->name('consultationRequests.store');
 });
 
 Route::get('consultation-documents/{consultationDocument}/download', [ConsultationDocumentController::class, 'download'])
