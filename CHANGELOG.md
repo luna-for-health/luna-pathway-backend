@@ -27,3 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Onboarding screens that explain how to prepare an appointment at the Luna centre, in English and
   French, with illustrations and intro videos.
 - Patients can complete onboarding and update their name, phone and avatar in the same step.
+- Staff (secretariat) accounts, separate from patient accounts, with `admin` and `secretary` roles, plus
+  a seeder that creates local demo accounts.
+- Staff log in and out with email and password.
+- Staff can reset a forgotten password with a 6-digit code sent by email; a reset signs the account out
+  on every device.
+- Staff-only endpoints refuse patient tokens (403).
