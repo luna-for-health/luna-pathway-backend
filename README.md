@@ -197,6 +197,18 @@ Filter with `?status=new`, `?status=reminder`, `?status=validated`, or `?status=
 get everything. Only the authenticated user's own requests are ever returned — there's no cross-user
 listing on the patient-facing endpoint.
 
+For staff, `GET /api/secretary/consultation-requests` (`auth:sanctum` + `secretary`) lists requests
+across **every** patient, same filter/pagination params, each item including the owning patient's profile
+under `user` (the patient-facing endpoint above returns its own profile once at the top level instead,
+since every item is already known to be theirs).
+
+`PATCH /api/consultation-requests/{id}/status` (`auth:sanctum` + `secretary`) moves a request to a new
+`status`. This is staff-only — a `User` (patient) token gets a 403 — and not scoped to a particular
+patient, since staff need to triage everyone's requests: `{status: 'new' | 'reminder' | 'validated' |
+'treated', status_reason?: string}`. `status_reason` is optional free text recording why the status
+changed (e.g. "Patient confirmed by phone"); it reflects only the most recent change, not a history —
+updating again without it clears it back to `null`.
+
 ## Development
 
 ```bash
