@@ -93,6 +93,28 @@ keeps the final decision.
 
 The application needs no real patient data to run — see [Data protection](#data-protection).
 
+## API authentication (passwordless)
+
+Auth model is the standard `users` table (`App\Models\User`), not `Secretary` — this is for API clients
+(e.g. a doctor-facing app).
+
+`users` has `first_name`/`last_name` (`last_name` is nullable, since the passwordless verify-code flow
+auto-creates a user from just an email) and an `avatar_id` integer (default `1`, client-side avatar
+catalog index — no server-side avatar model/table).
+
+Flow: request a 6-digit code by email, then verify it to get a Sanctum token. No passwords involved.
+
+| Method | Endpoint | Notes |
+| --- | --- | --- |
+| POST | `/api/auth/send-code` | `{email, type?: login\|signup}`. `type=login` 404s if the email isn't registered yet. |
+| POST | `/api/auth/verify-code` | `{email, code}`. Verifies the code; auto-creates the user on first login. Returns `user` + `access_token`. |
+| POST | `/api/auth/login` | `{email, code}`. Same as verify-code but 404s if the user doesn't exist yet. |
+| POST | `/api/auth/register` | `{first_name, last_name, email, phone?, birthdate?, avatar?, user_id?}`. Creates a user, or updates one if `user_id` is passed. `birthdate` must be a past date (`YYYY-MM-DD`); `avatar` defaults to `1`. |
+| POST | `/api/auth/logout` | Requires `Authorization: Bearer <token>`. Revokes the current token. |
+
+In local (`APP_ENV=local`), the code is always `123456` to ease testing. Emails are sent via
+`MAIL_MAILER` (defaults to `log`, i.e. written to `storage/logs/laravel.log` instead of actually sent).
+
 ### API docs
 
 API documentation is auto-generated from the code (routes, form requests, resources) by
