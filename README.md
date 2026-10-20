@@ -1,1 +1,199 @@
-# doctors-backend
+# Luna for Health Tunisia — Backend
+
+Open-source platform that gets a woman or an adolescent girl with a women's health problem —
+endometriosis first — to the right practitioner, on the right pathway, as fast as possible.
+
+Built by [Luna for Health](https://lunaforhealth.com) with the support of the
+[UNICEF Venture Fund](https://www.unicef.org/innovation/venturefund), FemTech cohort 2026–2027. The
+method comes from Centre Luna Marseille (France); the first deployment under the Fund is Centre Luna
+Tunisia.
+
+This repository is the **backend API** — the clinical routing engine, centre-configuration tool, Luna
+secretariat and Luna Doctors. The patient-facing intake application is a separate repository
+(`luna-patient`).
+
+## The problem
+
+Endometriosis takes years to diagnose. Period pain is treated as normal, and nothing connects a woman
+who suspects something is wrong to a clinician who can help her. In Tunisia, 68% of schoolgirls report
+painful periods and most self-medicate rather than consult; there is no established care pathway and no
+prevalence or diagnostic-delay study.
+
+The decision that matters for her — *which professional should she see?* — is made at a medical centre's
+secretariat, by a coordinator with years of experience and, until now, no tool. This platform captures
+that coordinator's knowledge and runs it, so that every woman is routed on experience and the centre
+keeps the final decision.
+
+**It does not diagnose.** It prepares her consultation and gets her to the right person.
+
+## Principles
+
+- **Built for her, deployed at the centre.** The centre is the customer; the intake and the app are free
+  for the woman or girl.
+- **No prior medical history required.** A girl who has never seen a doctor is served as well as a woman
+  with a folder of scans.
+- **Routing on experience, not on a generic algorithm.** Rules come from the centre's own coordinator, in
+  her words.
+- **The human keeps the decision.** The coordinator confirms or changes every routing.
+- **Tested with real women before each component is added.** The voice-first version was built and
+  field-tested in Tunisia (32 sessions, 6% used voice); that is why the product looks the way it does.
+- **Privacy by design.** Explicit consent in plain language, health data with a certified health-data
+  host, no advertising, no sale of data.
+
+## Stack
+
+- PHP 8.3 / Laravel 13
+- Spatie laravel-permission (roles: `admin`, `secretary`)
+- Laravel Sanctum (API tokens)
+- MySQL
+
+## Getting started
+
+1. Install PHP dependencies:
+
+   ```bash
+   composer install
+   ```
+
+2. Copy the environment file and generate the app key:
+
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+3. Configure your database credentials in `.env` (defaults to a local MySQL database named
+   `luna_doctors_backend` — create it first if it doesn't exist:
+   `mysql -u root -e "CREATE DATABASE IF NOT EXISTS luna_doctors_backend;"`).
+
+4. Run migrations and seed the Secretary accounts/roles:
+
+   ```bash
+   php artisan migrate
+   php artisan db:seed --class=SecretarySeeder
+   ```
+
+   > The seeded accounts use a fixed demo password and a non-production domain — intended for local
+   > development only. See [Secretary accounts](#secretary-accounts-staff-api) below.
+
+5. Serve the app:
+
+   ```bash
+   php artisan serve
+   ```
+
+   The app is now available at `http://localhost:8000` (API under `/api`, docs at `/docs/api`).
+
+6. (Optional) Run a queue worker — needed for OCR text extraction on consultation documents to actually
+   process:
+
+   ```bash
+   php artisan queue:work
+   ```
+
+The application needs no real patient data to run — see [Data protection](#data-protection).
+
+### API docs
+
+API documentation is auto-generated from the code (routes, form requests, resources) by
+[Scramble](https://scramble.dedoc.co) — no manual OpenAPI YAML to maintain. It's live at:
+
+- `http://localhost:8000/docs/api` — interactive UI (Stoplight Elements), includes a "Try it" panel.
+- `http://localhost:8000/docs/api.json` — raw OpenAPI 3.1 spec.
+
+Restricted to the local environment by default (`Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess`);
+define a `viewApiDocs` gate to allow it elsewhere. New/changed routes, form requests, and resources are
+picked up automatically — add a PHPDoc summary/description and
+`#[Dedoc\Scramble\Attributes\Response(...)]` attributes on controller methods to document non-200
+responses, since those can't be inferred from early `return`s.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Testing
+
+```bash
+php artisan test
+```
+
+Tests run against a separate MySQL database (`luna_doctors_backend_testing`, configured in
+`phpunit.xml`) rather than SQLite, since `pdo_sqlite` isn't installed in this environment. Create it once
+with:
+
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS luna_doctors_backend_testing;"
+```
+
+## Architecture
+
+See [docs/architecture.md](docs/architecture.md) — client/API/storage diagram and where health data lives
+and flows.
+
+## Open-source software used
+
+**Backend (this repository):**
+
+| Layer | Software | Licence |
+|---|---|---|
+| Framework | Laravel 13 | MIT |
+| Auth | Laravel Sanctum, Laravel Socialite | MIT |
+| Authorization | spatie/laravel-permission | MIT |
+| API docs | dedoc/scramble | MIT |
+| Database | MySQL | — |
+| Tests | PHPUnit, Mockery | BSD-3-Clause / MIT |
+| Document extraction (OCR) | Mistral OCR API (external service, not bundled) | — |
+
+**Frontend (`luna-patient`, direct dependencies):**
+
+| Software | Licence |
+|---|---|
+| React, React DOM | MIT |
+| React Router | MIT |
+| React Hook Form, @hookform/resolvers | MIT |
+| @tanstack/react-query | MIT |
+| zod | MIT |
+| radix-ui | MIT |
+| class-variance-authority | Apache-2.0 |
+| tailwind-merge, tw-animate-css | MIT |
+| embla-carousel-react | MIT |
+| lucide-react | ISC |
+| shadcn | MIT |
+| @fontsource-variable/geist (font) | OFL-1.1 |
+| @amplitude/analytics-browser | MIT |
+
+Both lists cover direct dependencies only. A complete, generated dependency tree with licences is
+available via `composer licenses` (backend, 120 packages) and `npx license-checker` (frontend, 406
+packages including transitive dependencies) — see
+[docs/open-source-verification-report.md](docs/open-source-verification-report.md) for the full audit.
+
+## Data protection
+
+This platform processes health data. Explicit, informed consent before any processing; encrypted
+storage; role-based access (a coordinator sees her centre's requests, a clinician sees the files routed
+to them); hosting in France with Hosteur, certified health-data host (HDS) and ISO/IEC 27001:2022; audio
+discarded after transcription; documents read on Luna's own infrastructure; no advertising, no sale of
+data. A Privacy Impact Assessment on the UNICEF Venture Fund framework is maintained alongside this code,
+and the platform is designed to GDPR standards and to the Tunisian personal-data law (2004-63, INPDP).
+
+This repository contains **no data**: no patient records, no session data from field tests, no real
+centre configuration.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). All contributors follow the
+[Code of Conduct](CODE_OF_CONDUCT.md). Translations and deployment guides for new centres are especially
+welcome.
+
+## Licence
+
+Apache License 2.0 — see [LICENSE](LICENSE).
+
+## Acknowledgements
+
+The clinical routing knowledge was captured with the coordinator and the medical lead, Dr
+Jean-Philippe Estrade, of Centre Luna Marseille. Supported by the UNICEF Venture Fund. The views
+expressed are those of Luna for Health and do not necessarily reflect those of UNICEF.
