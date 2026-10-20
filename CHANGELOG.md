@@ -21,3 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Authentication messages in English and French.
 - Sign up or log in with a Google or Apple account. An existing account with the same email is reused
   instead of being duplicated, and Apple private-relay addresses are recognised.
+- GDPR consent screens in plain language, in English and French, returned together with the profile of
+  the account that uses that email, if one exists.
+- Patients can record that they accepted the GDPR terms.
