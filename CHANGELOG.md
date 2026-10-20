@@ -45,3 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Patients can list their own consultation requests, filtered by status and paginated.
 - Patients receive a confirmation email when they submit a request (when a Brevo template is
   configured).
+- Staff can list consultation requests from every patient, with each patient's profile, filtered by
+  status.
+- Staff can move a request to `new`, `reminder`, `validated` or `treated`, with an optional reason.
+- Every day at 08:00, requests still in `reminder` go back to `new` (requires the Laravel scheduler).
