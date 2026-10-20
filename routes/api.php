@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Appointment\ConsultationDocumentController;
+use App\Http\Controllers\Api\Secretary\Appointment\ConsultationRequestController as SecretaryConsultationRequestController;
 use App\Http\Controllers\Api\Secretary\Auth\AuthController as SecretaryAuthController;
 use App\Http\Controllers\Api\User\Appointment\ConsultationRequestController;
 use App\Http\Controllers\Api\User\Auth\AuthController;
@@ -46,4 +47,9 @@ Route::controller(SecretaryAuthController::class)->prefix('secretary')->group(fu
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('secretary.logout');
     Route::post('/password/forgot', 'forgotPassword')->name('secretary.password.forgot');
     Route::post('/password/reset', 'resetPassword')->name('secretary.password.reset');
+});
+
+Route::controller(SecretaryConsultationRequestController::class)->middleware(['auth:sanctum', 'secretary'])->group(function () {
+    Route::get('secretary/consultation-requests', 'index')->name('secretary.consultationRequests.index');
+    Route::patch('consultation-requests/{consultationRequest}/status', 'updateStatus')->name('consultationRequests.updateStatus');
 });
