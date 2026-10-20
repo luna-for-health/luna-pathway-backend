@@ -33,3 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Staff can reset a forgotten password with a 6-digit code sent by email; a reset signs the account out
   on every device.
 - Staff-only endpoints refuse patient tokens (403).
+- Transactional emails through Brevo, sent immediately or queued with automatic retries (up to
+  3 attempts); recipients and message bodies are kept out of the logs.
+- `php artisan brevo:test {email}` command to check the Brevo setup.
