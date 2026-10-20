@@ -24,3 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GDPR consent screens in plain language, in English and French, returned together with the profile of
   the account that uses that email, if one exists.
 - Patients can record that they accepted the GDPR terms.
+- Onboarding screens that explain how to prepare an appointment at the Luna centre, in English and
+  French, with illustrations and intro videos.
+- Patients can complete onboarding and update their name, phone and avatar in the same step.
