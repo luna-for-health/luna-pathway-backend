@@ -27,5 +27,6 @@ return [
     'login_success' => 'Vous êtes connecté avec succès.',
     'logout_success' => 'Vous êtes déconnecté avec succès.',
     'registration_success' => 'Votre inscription a été effectuée avec succès.',
+    'oauth_provider_error' => 'Erreur du fournisseur, veuillez vérifier votre jeton d\'accès.',
 
 ];
