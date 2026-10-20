@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Secretary;
 use App\Models\User;
 
 return [
@@ -42,6 +43,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'secretary' => [
+            'driver' => 'session',
+            'provider' => 'secretaries',
+        ],
     ],
 
     /*
@@ -71,6 +77,11 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        'secretaries' => [
+            'driver' => 'eloquent',
+            'model' => Secretary::class,
+        ],
     ],
 
     /*
