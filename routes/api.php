@@ -33,4 +33,6 @@ Route::controller(OnboardingController::class)->prefix('onboarding')->group(func
 Route::controller(SecretaryAuthController::class)->prefix('secretary')->group(function () {
     Route::post('/login', 'login')->name('secretary.login');
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('secretary.logout');
+    Route::post('/password/forgot', 'forgotPassword')->name('secretary.password.forgot');
+    Route::post('/password/reset', 'resetPassword')->name('secretary.password.reset');
 });

@@ -30,4 +30,11 @@ return [
     'gdpr_accepted' => 'Conditions RGPD acceptées.',
     'oauth_provider_error' => 'Erreur du fournisseur, veuillez vérifier votre jeton d\'accès.',
 
+    'password_reset_code_sent' => 'Un code de réinitialisation du mot de passe a été envoyé à votre adresse e-mail.',
+    'password_reset_mail_subject' => 'Votre code de réinitialisation du mot de passe',
+    'password_reset_mail_title' => 'Votre code de réinitialisation du mot de passe',
+    'password_reset_mail_description' => 'Utilisez le code ci-dessous pour réinitialiser votre mot de passe.',
+    'password_reset_mail_quote' => 'Ce code expire dans 30 minutes.',
+    'password_reset_success' => 'Votre mot de passe a été réinitialisé avec succès.',
+
 ];

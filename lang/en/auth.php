@@ -30,4 +30,11 @@ return [
     'gdpr_accepted' => 'GDPR terms accepted.',
     'oauth_provider_error' => 'Provider error, please verify your access token.',
 
+    'password_reset_code_sent' => 'A password reset code has been sent to your email.',
+    'password_reset_mail_subject' => 'Your password reset code',
+    'password_reset_mail_title' => 'Your password reset code',
+    'password_reset_mail_description' => 'Use the code below to reset your password.',
+    'password_reset_mail_quote' => 'This code expires in 30 minutes.',
+    'password_reset_success' => 'Your password has been reset successfully.',
+
 ];
