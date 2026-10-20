@@ -36,3 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Transactional emails through Brevo, sent immediately or queued with automatic retries (up to
   3 attempts); recipients and message bodies are kept out of the logs.
 - `php artisan brevo:test {email}` command to check the Brevo setup.
+- Patients can submit a consultation request with the reason for the visit, their history, six symptom
+  scores (period pain, pelvic pain, pain during sex, digestive issues, urinary issues, fatigue), whether
+  they have had an MRI, and supporting documents (PDF, JPG, PNG).
+- Uploaded documents are encrypted at rest and can only be downloaded by the patient who owns them or by
+  staff.
+- Text is extracted from uploaded documents and summarised automatically in the background (Mistral OCR).
+- Patients can list their own consultation requests, filtered by status and paginated.
+- Patients receive a confirmation email when they submit a request (when a Brevo template is
+  configured).
