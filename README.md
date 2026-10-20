@@ -93,6 +93,33 @@ keeps the final decision.
 
 The application needs no real patient data to run — see [Data protection](#data-protection).
 
+## Secretary accounts (staff API)
+
+`App\Models\Secretary` is a separate auth model from `users` — it's staff (admin/secretary), not
+patients — gated by Spatie roles (`admin` or `secretary`). Staff authenticate with email+password (unlike
+the passwordless `User` flow) and get a Sanctum token just like a `User` does. The `secretary` middleware
+alias (`App\Http\Middleware\EnsureSecretary`) guards any route that must be called by staff, rejecting a
+valid `User` token with a 403.
+
+| Method | Endpoint | Notes |
+| --- | --- | --- |
+| POST | `/api/secretary/login` | `{email, password}`. Returns `secretary` + `access_token`. |
+| POST | `/api/secretary/logout` | Requires `Authorization: Bearer <token>`. Revokes the current token. |
+| POST | `/api/secretary/password/forgot` | `{email}`. Emails a 6-digit code, valid 30 minutes (404s if the email isn't a staff account). |
+| POST | `/api/secretary/password/reset` | `{email, code, password, password_confirmation}`. Sets the new password and revokes every existing token for that account. |
+
+Password reset follows the same code-by-email mechanic as the patient passwordless flow (own
+`secretary_password_resets` table, mirroring `magic_codes`), just paired with a real password instead of
+a passwordless login. In local (`APP_ENV=local`), the code is always `123456`.
+
+`SecretarySeeder` (see step 4 above) creates the two roles and two **local-development-only** accounts —
+do not reuse these credentials or domain in any deployed environment:
+
+| Email | Password | Role |
+| --- | --- | --- |
+| admin@envast.tn | testtest | admin |
+| secretary@envast.tn | testtest | secretary |
+
 ## API authentication (passwordless)
 
 Auth model is the standard `users` table (`App\Models\User`), not `Secretary` — this is for API clients
