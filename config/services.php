@@ -22,6 +22,17 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    'brevo' => [
+        'api_key' => env('BREVO_API_KEY'),
+        'from_address' => env('BREVO_FROM_ADDRESS', env('MAIL_FROM_ADDRESS')),
+        'from_name' => env('BREVO_FROM_NAME', env('MAIL_FROM_NAME', env('APP_NAME'))),
+        'default_subject' => env('BREVO_DEFAULT_SUBJECT', env('APP_NAME')),
+        'timeout' => (int) env('BREVO_TIMEOUT', 10),
+        'templates' => [
+            'consultation_request_created' => env('BREVO_TEMPLATE_CONSULTATION_REQUEST_CREATED'),
+        ],
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
