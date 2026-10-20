@@ -10,6 +10,7 @@ use App\Http\Resources\UserResource;
 use App\Mail\MagicCodeMail;
 use App\Models\MagicCode;
 use App\Models\User;
+use App\Services\Luna\LunaUserService;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\Group;
@@ -65,7 +66,7 @@ class AuthController extends Controller
      */
     #[Response(200, 'Code verified, user authenticated', type: 'array{status: true, message: string, data: array{user: UserResource, access_token: string, expires_at: string|null}}')]
     #[Response(422, 'Invalid or expired code', type: 'array{status: false, message: string, data: null, errors: null}')]
-    public function verifyCode(VerifyCodeRequest $request)
+    public function verifyCode(VerifyCodeRequest $request, LunaUserService $lunaUserService)
     {
         $email = $request->validated('email');
         $code = $request->validated('code');
@@ -96,6 +97,8 @@ class AuthController extends Controller
             ]);
 
             $user->forceFill(['email_verified_at' => Carbon::now()])->save();
+
+            $lunaUserService->linkUser($user);
         }
 
         $token = $user->createToken('Personal Access Token');
@@ -116,7 +119,7 @@ class AuthController extends Controller
      */
     #[Response(200, 'User registered/updated', type: 'array{status: true, message: string, data: array{user: UserResource, access_token: string, expires_at: string|null}}')]
     #[Response(404, 'user_id was passed but no matching user exists', type: 'array{status: false, message: string, data: null, errors: null}')]
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request, LunaUserService $lunaUserService)
     {
         $data = $request->validated();
         $userId = $data['user_id'] ?? null;
@@ -151,6 +154,8 @@ class AuthController extends Controller
             ]);
 
             $user->forceFill(['email_verified_at' => Carbon::now()])->save();
+
+            $lunaUserService->linkUser($user);
         }
 
         $token = $user->createToken('Personal Access Token');
