@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\User\Auth\AuthController;
 use App\Http\Controllers\Api\User\Auth\OAuthController;
 use App\Http\Controllers\Api\User\GdprController;
+use App\Http\Controllers\Api\User\Onboarding\OnboardingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +23,8 @@ Route::post('oauth/signup/{provider}', [OAuthController::class, 'signup'])->name
 
 Route::get('gdpr-consent', [GdprController::class, 'consent'])->name('gdpr.consent');
 Route::put('gdpr/accept', [GdprController::class, 'accept'])->middleware('auth:sanctum')->name('gdpr.accept');
+
+Route::controller(OnboardingController::class)->prefix('onboarding')->group(function () {
+    Route::get('/', 'content')->name('onboarding.content');
+    Route::put('/', 'update')->middleware('auth:sanctum')->name('onboarding.update');
+});
