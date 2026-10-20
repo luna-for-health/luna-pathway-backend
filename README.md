@@ -111,9 +111,13 @@ Flow: request a 6-digit code by email, then verify it to get a Sanctum token. No
 | POST | `/api/auth/login` | `{email, code}`. Same as verify-code but 404s if the user doesn't exist yet. |
 | POST | `/api/auth/register` | `{first_name, last_name, email, phone?, birthdate?, avatar?, user_id?}`. Creates a user, or updates one if `user_id` is passed. `birthdate` must be a past date (`YYYY-MM-DD`); `avatar` defaults to `1`. |
 | POST | `/api/auth/logout` | Requires `Authorization: Bearer <token>`. Revokes the current token. |
+| POST | `/api/oauth/signup/{provider}` | `provider` is `google` or `apple`. `{access_token, first_name?, last_name?, phone?, avatar?}`. Logs in if the email already has an account, otherwise creates one (201) — name overrides require both `first_name` and `last_name`, otherwise it's split from the provider's profile name (first word vs. the rest). |
 
 In local (`APP_ENV=local`), the code is always `123456` to ease testing. Emails are sent via
 `MAIL_MAILER` (defaults to `log`, i.e. written to `storage/logs/laravel.log` instead of actually sent).
+
+`/api/oauth/signup/{provider}` needs real `GOOGLE_CLIENT_*` / `APPLE_CLIENT_*` credentials in `.env` to
+actually verify a token against Google/Apple (left blank by default — calls will 400 until set).
 
 ### API docs
 
