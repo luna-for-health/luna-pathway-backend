@@ -13,3 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`status`, `message`, `data`); errors are always returned as JSON, never as a redirect to a login page.
 - Interactive API documentation at `/docs/api` and the OpenAPI 3.1 spec at `/docs/api.json`, generated
   from the code (local environment only by default).
+- Passwordless sign-in for patients: request a 6-digit code by email, then exchange it for an access
+  token. The code is valid for 30 minutes, and an account is created automatically on first sign-in.
+- Patients can create or update their profile: first and last name, email, phone, birthdate, location
+  and avatar.
+- Signing out revokes the current access token.
+- Authentication messages in English and French.
