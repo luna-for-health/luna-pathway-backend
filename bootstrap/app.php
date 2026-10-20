@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // This app has no web login route — never redirect unauthenticated
         // requests, always fall through to a JSON 401 instead.
         $middleware->redirectGuestsTo(fn () => null);
+
+        $middleware->alias([
+            'secretary' => \App\Http\Middleware\EnsureSecretary::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
