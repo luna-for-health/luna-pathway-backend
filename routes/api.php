@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\User\Auth\AuthController;
 use App\Http\Controllers\Api\User\Auth\OAuthController;
+use App\Http\Controllers\Api\User\GdprController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,3 +19,6 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 });
 
 Route::post('oauth/signup/{provider}', [OAuthController::class, 'signup'])->name('oauth.signup');
+
+Route::get('gdpr-consent', [GdprController::class, 'consent'])->name('gdpr.consent');
+Route::put('gdpr/accept', [GdprController::class, 'accept'])->middleware('auth:sanctum')->name('gdpr.accept');
