@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\SendCodeRequest;
 use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
@@ -104,6 +105,61 @@ class AuthController extends Controller
             'access_token' => $token->plainTextToken,
             'expires_at' => $token->accessToken->expires_at,
         ], __('auth.verification_success'));
+    }
+
+    /**
+     * Create or update a profile
+     *
+     * Creates a new user (and issues a token), or updates an existing one when `user_id`
+     * is passed. No code is required here — pair it with verify-code/login in front of it
+     * if the caller isn't already authenticated.
+     */
+    #[Response(200, 'User registered/updated', type: 'array{status: true, message: string, data: array{user: UserResource, access_token: string, expires_at: string|null}}')]
+    #[Response(404, 'user_id was passed but no matching user exists', type: 'array{status: false, message: string, data: null, errors: null}')]
+    public function register(RegisterRequest $request)
+    {
+        $data = $request->validated();
+        $userId = $data['user_id'] ?? null;
+
+        $user = $userId ? User::find($userId) : null;
+
+        if ($userId && ! $user) {
+            return $this->errorResponse(__('User not found'), 404);
+        }
+
+        if ($user) {
+            $user->update([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? $user->phone,
+                'birthdate' => $data['birthdate'] ?? $user->birthdate,
+                'location' => $data['location'] ?? $user->location,
+                'avatar_id' => $data['avatar'] ?? $user->avatar_id,
+                'has_completed_onboarding' => true,
+            ]);
+        } else {
+            $user = User::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'birthdate' => $data['birthdate'] ?? null,
+                'location' => $data['location'] ?? null,
+                'avatar_id' => $data['avatar'] ?? 1,
+                'has_completed_onboarding' => true,
+            ]);
+
+            $user->forceFill(['email_verified_at' => Carbon::now()])->save();
+        }
+
+        $token = $user->createToken('Personal Access Token');
+
+        return $this->successResponse([
+            'user' => new UserResource($user),
+            'access_token' => $token->plainTextToken,
+            'expires_at' => $token->accessToken->expires_at,
+        ], __('auth.registration_success'));
     }
 
     /**
