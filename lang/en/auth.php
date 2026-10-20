@@ -27,5 +27,6 @@ return [
     'login_success' => 'You have been logged in successfully.',
     'logout_success' => 'You have been logged out successfully.',
     'registration_success' => 'You have been registered successfully.',
+    'oauth_provider_error' => 'Provider error, please verify your access token.',
 
 ];

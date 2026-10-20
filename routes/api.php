@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\User\Auth\AuthController;
+use App\Http\Controllers\Api\User\Auth\OAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +16,5 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('/register', 'register')->name('auth.register');
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('auth.logout');
 });
+
+Route::post('oauth/signup/{provider}', [OAuthController::class, 'signup'])->name('oauth.signup');

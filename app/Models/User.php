@@ -34,4 +34,9 @@ class User extends Authenticatable
             'is_private_email' => 'boolean',
         ];
     }
+
+    public function isOauthUser(): bool
+    {
+        return ! is_null($this->provider);
+    }
 }
