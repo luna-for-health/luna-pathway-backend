@@ -162,6 +162,41 @@ picked up automatically — add a PHPDoc summary/description and
 `#[Dedoc\Scramble\Attributes\Response(...)]` attributes on controller methods to document non-200
 responses, since those can't be inferred from early `return`s.
 
+## Consultation requests (OCR)
+
+`POST /api/consultation-requests` (auth:sanctum) lets a signed-in user start booking an appointment: a
+`reason`, optional `history`, and optional `documents[]` (pdf/jpg/jpeg/png, max 56 MB each,
+`multipart/form-data`). Each uploaded document is stored **encrypted at rest** (`Crypt::encrypt`, under
+`storage/app/private/public/consultation-documents`) and queued as an `ExtractConsultationDocumentOcr`
+job — the response's `documents[].ocrText` is `null` until that job runs and updates it.
+
+OCR text extraction calls the Mistral OCR API (`App\Services\Ocr\MistralOcrService`); set
+`OCR_MISTRAL_API_KEY` in `.env` for it to actually work. A queue worker must be running for the job to
+process:
+
+```bash
+php artisan queue:work
+```
+
+Each document in the response also carries a `url` — `GET /api/consultation-documents/{id}/download`
+(`auth:sanctum`) — that decrypts and streams the original file. Since the file is encrypted at rest, this
+is a real endpoint, not a plain storage URL. Available to the owning patient (their own documents only,
+403 otherwise) and to any staff member (no ownership check, same as the rest of the staff-facing surface).
+
+`GET /api/consultation-requests` (`auth:sanctum`) lists the caller's own requests, most recent first,
+paginated (`per_page`, default 15, max 100). Every request has a `status`:
+
+| Value | Meaning | Set when |
+| --- | --- | --- |
+| `new` | Not yet looked at by staff | Default, on creation |
+| `reminder` | Staff has reached out, awaiting a callback | Set by staff |
+| `validated` | Appointment confirmed | Set by staff |
+| `treated` | Already handled | Set by staff |
+
+Filter with `?status=new`, `?status=reminder`, `?status=validated`, or `?status=treated`, or omit it to
+get everything. Only the authenticated user's own requests are ever returned — there's no cross-user
+listing on the patient-facing endpoint.
+
 ## Development
 
 ```bash
