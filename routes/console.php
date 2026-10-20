@@ -4,6 +4,7 @@ use App\Services\Mail\BrevoMail;
 use App\Services\Mail\BrevoMailException;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -22,3 +23,5 @@ Artisan::command('brevo:test {email}', function (string $email) {
 
     return 0;
 })->purpose('Send a test email through the Brevo API');
+
+Schedule::command('consultation-requests:reset-reminders')->dailyAt('08:00');
