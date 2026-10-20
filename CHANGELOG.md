@@ -49,3 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   status.
 - Staff can move a request to `new`, `reminder`, `validated` or `treated`, with an optional reason.
 - Every day at 08:00, requests still in `reminder` go back to `new` (requires the Laravel scheduler).
+- New patient accounts (code sign-in, profile registration and Google/Apple sign-up) are linked to their
+  Luna platform account. Sign-up still succeeds when Luna is unreachable.
+- `php artisan luna:sync-users` links every account that is still missing its Luna link.
