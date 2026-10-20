@@ -19,3 +19,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and avatar.
 - Signing out revokes the current access token.
 - Authentication messages in English and French.
+- Sign up or log in with a Google or Apple account. An existing account with the same email is reused
+  instead of being duplicated, and Apple private-relay addresses are recognised.
