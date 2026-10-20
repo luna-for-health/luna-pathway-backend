@@ -33,6 +33,7 @@ class User extends Authenticatable
             'has_accepted_gdpr' => 'boolean',
             'has_completed_onboarding' => 'boolean',
             'is_private_email' => 'boolean',
+            'luna_user_id' => 'integer',
         ];
     }
 

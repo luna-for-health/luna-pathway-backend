@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\OAuthSignupRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Auth\OAuthService;
+use App\Services\Luna\LunaUserService;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\Group;
@@ -30,7 +31,7 @@ class OAuthController extends Controller
     #[Response(201, 'New account created', type: 'array{status: true, message: string, data: array{user: UserResource, access_token: string}}')]
     #[Response(400, 'Provider rejected the access token', type: 'array{status: false, message: string, data: null, errors: null}')]
     #[Response(422, 'Unsupported provider', type: 'array{status: false, message: string, data: null, errors: null}')]
-    public function signup(OAuthSignupRequest $request, string $provider): JsonResponse
+    public function signup(OAuthSignupRequest $request, string $provider, LunaUserService $lunaUserService): JsonResponse
     {
         if (! in_array($provider, OAuthService::PROVIDERS, true)) {
             return $this->errorResponse(__('auth.oauth_provider_error'), 422);
@@ -77,6 +78,8 @@ class OAuthController extends Controller
         ]);
 
         $user->forceFill(['email_verified_at' => Carbon::now()])->save();
+
+        $lunaUserService->linkUser($user);
 
         $token = $user->createToken('Personal Access Token');
 

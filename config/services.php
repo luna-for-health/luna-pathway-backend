@@ -22,6 +22,12 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    'luna' => [
+        'base_url' => env('LUNA_API_URL'),
+        'token' => env('LUNA_INTERNAL_API_TOKEN'),
+        'timeout' => (int) env('LUNA_API_TIMEOUT', 10),
+    ],
+
     'brevo' => [
         'api_key' => env('BREVO_API_KEY'),
         'from_address' => env('BREVO_FROM_ADDRESS', env('MAIL_FROM_ADDRESS')),
