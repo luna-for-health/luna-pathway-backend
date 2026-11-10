@@ -2,18 +2,24 @@
 
 namespace App\Http\Requests\Auth;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class RegisterRequest extends FormRequest
 {
+    /**
+     * A user_id may only target the authenticated user's own profile.
+     */
     public function authorize(): bool
     {
-        return true;
+        $userId = $this->input('user_id');
+
+        return $userId === null || (int) $userId === $this->user()->id;
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

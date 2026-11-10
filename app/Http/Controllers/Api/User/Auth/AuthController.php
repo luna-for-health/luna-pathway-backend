@@ -123,11 +123,12 @@ class AuthController extends Controller
     /**
      * Create or update a profile
      *
-     * Creates a new user (and issues a token), or updates an existing one when `user_id`
-     * is passed. No code is required here — pair it with verify-code/login in front of it
-     * if the caller isn't already authenticated.
+     * Creates a new user (and issues a token), or updates the authenticated user's own
+     * profile when `user_id` is passed. Requires a bearer token (from verify-code); the
+     * email cannot be changed on update.
      */
     #[Response(200, 'User registered/updated', type: 'array{status: true, message: string, data: array{user: UserResource, access_token: string, expires_at: string|null}}')]
+    #[Response(403, 'user_id belongs to another user', type: 'array{message: string}')]
     #[Response(404, 'user_id was passed but no matching user exists', type: 'array{status: false, message: string, data: null, errors: null}')]
     public function register(RegisterRequest $request, LunaUserService $lunaUserService)
     {

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Laravel\Sanctum\Sanctum;
 use Laravel\Socialite\Contracts\Provider as SocialiteProvider;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
@@ -38,6 +39,7 @@ class SyncLunaUserTest extends TestCase
     {
         $this->fakeLunaResponse();
 
+        Sanctum::actingAs(User::factory()->create());
         $this->postJson(route('auth.register'), [
             'first_name' => 'Jane',
             'last_name' => 'Doe',
@@ -55,6 +57,7 @@ class SyncLunaUserTest extends TestCase
     {
         Http::fake();
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $this->postJson(route('auth.register'), [
             'user_id' => $user->id,
@@ -93,6 +96,7 @@ class SyncLunaUserTest extends TestCase
     {
         Http::fake([self::ENDPOINT => Http::response(['status' => false], 500)]);
 
+        Sanctum::actingAs(User::factory()->create());
         $this->postJson(route('auth.register'), [
             'first_name' => 'Jane',
             'last_name' => 'Doe',
@@ -107,6 +111,7 @@ class SyncLunaUserTest extends TestCase
         config(['services.luna.base_url' => null]);
         Http::fake();
 
+        Sanctum::actingAs(User::factory()->create());
         $this->postJson(route('auth.register'), [
             'first_name' => 'Jane',
             'last_name' => 'Doe',
