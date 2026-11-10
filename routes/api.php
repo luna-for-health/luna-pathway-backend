@@ -18,7 +18,7 @@ Route::get('/user', function (Request $request) {
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('/send-code', 'sendCode')->middleware('throttle:auth-code-send')->name('auth.sendCode');
     Route::post('/verify-code', 'verifyCode')->middleware('throttle:auth-code-verify')->name('auth.verifyCode');
-    Route::post('/register', 'register')->name('auth.register');
+    Route::post('/register', 'register')->middleware('auth:sanctum')->name('auth.register');
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('auth.logout');
 });
 

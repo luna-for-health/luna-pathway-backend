@@ -19,14 +19,24 @@ class GdprConsentTest extends TestCase
         $response->assertJsonPath('data.user', null);
     }
 
-    public function test_it_returns_the_user_when_the_email_is_known(): void
+    public function test_it_returns_only_the_gdpr_acceptance_when_the_email_is_known(): void
     {
-        $user = User::factory()->create(['email' => 'doctor@example.com']);
+        User::factory()->create(['email' => 'doctor@example.com', 'has_accepted_gdpr' => true]);
 
         $response = $this->getJson(route('gdpr.consent', ['email' => 'doctor@example.com']));
 
         $response->assertOk();
-        $response->assertJsonPath('data.user.id', $user->id);
+        $response->assertJsonPath('data.user', ['has_accepted_gdpr' => true]);
+    }
+
+    public function test_it_returns_false_when_the_user_has_not_accepted_gdpr(): void
+    {
+        User::factory()->create(['email' => 'doctor@example.com', 'has_accepted_gdpr' => false]);
+
+        $response = $this->getJson(route('gdpr.consent', ['email' => 'doctor@example.com']));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.user', ['has_accepted_gdpr' => false]);
     }
 
     public function test_it_requires_a_valid_email(): void

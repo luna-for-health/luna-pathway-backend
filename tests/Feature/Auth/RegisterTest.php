@@ -4,11 +4,19 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class RegisterTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Sanctum::actingAs(User::factory()->create());
+    }
 
     public function test_it_creates_a_user_with_a_birthdate(): void
     {
@@ -65,6 +73,7 @@ class RegisterTest extends TestCase
     public function test_it_updates_the_avatar_when_user_id_is_passed(): void
     {
         $user = User::factory()->create(['avatar_id' => 1]);
+        Sanctum::actingAs($user);
 
         $response = $this->postJson(route('auth.register'), [
             'user_id' => $user->id,
@@ -82,6 +91,7 @@ class RegisterTest extends TestCase
     public function test_it_keeps_the_existing_avatar_when_not_passed_on_update(): void
     {
         $user = User::factory()->create(['avatar_id' => 5]);
+        Sanctum::actingAs($user);
 
         $response = $this->postJson(route('auth.register'), [
             'user_id' => $user->id,
@@ -97,6 +107,7 @@ class RegisterTest extends TestCase
     public function test_it_updates_the_birthdate_when_user_id_is_passed(): void
     {
         $user = User::factory()->create(['birthdate' => '1985-01-01']);
+        Sanctum::actingAs($user);
 
         $response = $this->postJson(route('auth.register'), [
             'user_id' => $user->id,
@@ -114,6 +125,7 @@ class RegisterTest extends TestCase
     public function test_it_keeps_the_existing_birthdate_when_not_passed_on_update(): void
     {
         $user = User::factory()->create(['birthdate' => '1985-01-01']);
+        Sanctum::actingAs($user);
 
         $response = $this->postJson(route('auth.register'), [
             'user_id' => $user->id,
@@ -179,6 +191,7 @@ class RegisterTest extends TestCase
     public function test_it_updates_the_location_when_user_id_is_passed(): void
     {
         $user = User::factory()->create(['location' => 'Lyon, France']);
+        Sanctum::actingAs($user);
 
         $response = $this->postJson(route('auth.register'), [
             'user_id' => $user->id,
@@ -196,6 +209,7 @@ class RegisterTest extends TestCase
     public function test_it_keeps_the_existing_location_when_not_passed_on_update(): void
     {
         $user = User::factory()->create(['location' => 'Lyon, France']);
+        Sanctum::actingAs($user);
 
         $response = $this->postJson(route('auth.register'), [
             'user_id' => $user->id,
@@ -216,5 +230,49 @@ class RegisterTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['first_name', 'last_name']);
+    }
+
+    public function test_it_requires_authentication(): void
+    {
+        $this->app['auth']->forgetGuards();
+
+        $response = $this->postJson(route('auth.register'), [
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+            'email' => 'jane.doe@example.com',
+        ]);
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_it_forbids_updating_another_users_profile(): void
+    {
+        $otherUser = User::factory()->create(['first_name' => 'Original']);
+
+        $response = $this->postJson(route('auth.register'), [
+            'user_id' => $otherUser->id,
+            'first_name' => 'Hijacked',
+            'last_name' => 'Doe',
+            'email' => $otherUser->email,
+        ]);
+
+        $response->assertForbidden();
+        $this->assertSame('Original', $otherUser->fresh()->first_name);
+    }
+
+    public function test_it_keeps_the_email_unchanged_on_update(): void
+    {
+        $user = User::factory()->create(['email' => 'original@example.com']);
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson(route('auth.register'), [
+            'user_id' => $user->id,
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+            'email' => 'changed@example.com',
+        ]);
+
+        $response->assertOk();
+        $this->assertSame('original@example.com', $user->fresh()->email);
     }
 }
