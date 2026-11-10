@@ -21,17 +21,17 @@ class GdprController extends Controller
     /**
      * Get GDPR consent content
      *
-     * Returns the GDPR consent carousel steps for the given email, plus that email's
-     * user profile if an account already exists for it (`null` otherwise). Public — no
-     * authentication required.
+     * Returns the GDPR consent carousel steps for the given email, plus whether that
+     * email's account has already accepted the GDPR terms (`user` is `null` when no
+     * account exists). Public — no authentication required.
      */
-    #[Response(200, 'GDPR consent content', type: 'array{status: true, message: string, data: array{user: UserResource|null, gdpr: list<array{step: int, title: string|null, backgroundColor: string|null, paragraphs: string[]|null, icon: string|null, media: string|null, media_text: string|null, link: string|null}>}}')]
+    #[Response(200, 'GDPR consent content', type: 'array{status: true, message: string, data: array{user: array{has_accepted_gdpr: bool}|null, gdpr: list<array{step: int, title: string|null, backgroundColor: string|null, paragraphs: string[]|null, icon: string|null, media: string|null, media_text: string|null, link: string|null}>}}')]
     public function consent(GdprConsentRequest $request): JsonResponse
     {
         $user = User::where('email', $request->validated('email'))->first();
 
         return $this->successResponse([
-            'user' => $user ? new UserResource($user) : null,
+            'user' => $user ? ['has_accepted_gdpr' => $user->has_accepted_gdpr] : null,
             'gdpr' => new GdprConsentResource(collect()),
         ], __('gdpr-consent.retrieved'));
     }
