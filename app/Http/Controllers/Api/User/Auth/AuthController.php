@@ -144,7 +144,6 @@ class AuthController extends Controller
             $user->update([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
-                'email' => $data['email'],
                 'phone' => $data['phone'] ?? $user->phone,
                 'birthdate' => $data['birthdate'] ?? $user->birthdate,
                 'location' => $data['location'] ?? $user->location,
