@@ -109,9 +109,7 @@ class AuthController extends Controller
             return $this->errorResponse(__('auth.not_found'), 404);
         }
 
-        $reset = SecretaryPasswordReset::where('email', $email)
-            ->where('code', $request->validated('code'))
-            ->first();
+        $reset = SecretaryPasswordReset::where('email', $email)->latest('id')->first();
 
         if (! $reset) {
             return $this->errorResponse(__('auth.invalid_code'), 422);
@@ -121,6 +119,16 @@ class AuthController extends Controller
             $reset->delete();
 
             return $this->errorResponse(__('auth.expired_code'), 422);
+        }
+
+        if (! hash_equals($reset->code, $request->validated('code'))) {
+            $reset->increment('attempts');
+
+            if ($reset->attempts >= SecretaryPasswordReset::MAX_ATTEMPTS) {
+                $reset->delete();
+            }
+
+            return $this->errorResponse(__('auth.invalid_code'), 422);
         }
 
         $reset->delete();
