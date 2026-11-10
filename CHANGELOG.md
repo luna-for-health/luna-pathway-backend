@@ -52,3 +52,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New patient accounts (code sign-in, profile registration and Google/Apple sign-up) are linked to their
   Luna platform account. Sign-up still succeeds when Luna is unreachable.
 - `php artisan luna:sync-users` links every account that is still missing its Luna link.
+
+### Security
+
+- Sign-in and password-reset endpoints are rate limited (HTTP 429 when exceeded): a code or reset email
+  can be requested once a minute and 5 times an hour per address, and codes and passwords can be tried
+  5 times a minute per address.
+- A 6-digit sign-in or password-reset code stops working after 5 wrong attempts; request a new one.
+- Set `TRUSTED_PROXIES` (comma-separated IPs/CIDRs, or `*`) when the app runs behind a load balancer or
+  reverse proxy, so rate limits apply to the real client IP.
