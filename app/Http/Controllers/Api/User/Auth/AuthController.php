@@ -71,7 +71,7 @@ class AuthController extends Controller
         $email = $request->validated('email');
         $code = $request->validated('code');
 
-        $magicCode = MagicCode::where('email', $email)->where('code', $code)->first();
+        $magicCode = MagicCode::where('email', $email)->latest('id')->first();
 
         if (! $magicCode) {
             return $this->errorResponse(__('auth.invalid_code'), 422);
@@ -81,6 +81,16 @@ class AuthController extends Controller
             $magicCode->delete();
 
             return $this->errorResponse(__('auth.expired_code'), 422);
+        }
+
+        if (! hash_equals($magicCode->code, $code)) {
+            $magicCode->increment('attempts');
+
+            if ($magicCode->attempts >= MagicCode::MAX_ATTEMPTS) {
+                $magicCode->delete();
+            }
+
+            return $this->errorResponse(__('auth.invalid_code'), 422);
         }
 
         $magicCode->delete();

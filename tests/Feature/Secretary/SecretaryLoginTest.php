@@ -58,4 +58,21 @@ class SecretaryLoginTest extends TestCase
         $response->assertOk();
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
+
+    public function test_login_is_throttled_after_five_attempts(): void
+    {
+        Secretary::factory()->create(['email' => 'staff@example.com']);
+
+        foreach (range(1, 5) as $attempt) {
+            $this->postJson(route('secretary.login'), [
+                'email' => 'staff@example.com',
+                'password' => 'wrong-password',
+            ])->assertStatus(401);
+        }
+
+        $this->postJson(route('secretary.login'), [
+            'email' => 'staff@example.com',
+            'password' => 'password',
+        ])->assertTooManyRequests();
+    }
 }

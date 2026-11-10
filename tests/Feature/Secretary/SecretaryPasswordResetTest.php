@@ -148,4 +148,37 @@ class SecretaryPasswordResetTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_it_invalidates_the_reset_code_after_five_wrong_attempts(): void
+    {
+        $secretary = Secretary::factory()->create(['email' => 'staff@example.com']);
+        $reset = SecretaryPasswordReset::create([
+            'email' => 'staff@example.com',
+            'code' => '123456',
+            'expires_at' => now()->addMinutes(30),
+        ]);
+
+        foreach (range(1, SecretaryPasswordReset::MAX_ATTEMPTS) as $attempt) {
+            $this->postJson(route('secretary.password.reset'), [
+                'email' => 'staff@example.com',
+                'code' => '000000',
+                'password' => 'new-secret-password',
+                'password_confirmation' => 'new-secret-password',
+            ])->assertStatus(422);
+        }
+
+        $this->assertModelMissing($reset);
+        $this->assertFalse(Hash::check('new-secret-password', $secretary->fresh()->password));
+    }
+
+    public function test_forgot_password_is_throttled_per_email(): void
+    {
+        Secretary::factory()->create(['email' => 'staff@example.com']);
+
+        $this->postJson(route('secretary.password.forgot'), ['email' => 'staff@example.com'])->assertOk();
+
+        $this->postJson(route('secretary.password.forgot'), ['email' => 'staff@example.com'])->assertTooManyRequests();
+
+        Mail::assertSentCount(1);
+    }
 }

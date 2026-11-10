@@ -16,9 +16,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
-    Route::post('/send-code', 'sendCode')->name('auth.sendCode');
-    Route::post('/verify-code', 'verifyCode')->name('auth.verifyCode');
-    Route::post('/login', 'login')->name('auth.login');
+    Route::post('/send-code', 'sendCode')->middleware('throttle:auth-code-send')->name('auth.sendCode');
+    Route::post('/verify-code', 'verifyCode')->middleware('throttle:auth-code-verify')->name('auth.verifyCode');
     Route::post('/register', 'register')->name('auth.register');
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('auth.logout');
 });
@@ -43,10 +42,10 @@ Route::get('consultation-documents/{consultationDocument}/download', [Consultati
     ->name('consultationDocuments.download');
 
 Route::controller(SecretaryAuthController::class)->prefix('secretary')->group(function () {
-    Route::post('/login', 'login')->name('secretary.login');
+    Route::post('/login', 'login')->middleware('throttle:auth-code-verify')->name('secretary.login');
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('secretary.logout');
-    Route::post('/password/forgot', 'forgotPassword')->name('secretary.password.forgot');
-    Route::post('/password/reset', 'resetPassword')->name('secretary.password.reset');
+    Route::post('/password/forgot', 'forgotPassword')->middleware('throttle:auth-code-send')->name('secretary.password.forgot');
+    Route::post('/password/reset', 'resetPassword')->middleware('throttle:auth-code-verify')->name('secretary.password.reset');
 });
 
 Route::controller(SecretaryConsultationRequestController::class)->middleware(['auth:sanctum', 'secretary'])->group(function () {
